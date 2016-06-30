@@ -1,14 +1,11 @@
 package com.malcolmstone.androidswapi;
 
 import android.databinding.DataBindingUtil;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.view.ViewGroup;
 
 import com.malcolmstone.androidswapi.databinding.MainActivityBinding;
-import com.malcolmstone.androidswapi.databinding.MainActivtyBinding;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -23,5 +20,6 @@ public class MainActivity extends AppCompatActivity {
 
         binding.personList.setLayoutManager(new LinearLayoutManager(this));
         binding.personList.setHasFixedSize(true);
+        binding.personList.setAdapter(new PersonListAdapter());
     }
 }
