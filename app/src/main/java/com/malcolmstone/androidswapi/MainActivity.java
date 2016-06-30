@@ -2,7 +2,6 @@ package com.malcolmstone.androidswapi;
 
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 
@@ -13,6 +12,7 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
 
     private MainActivityBinding binding;
+    private PersonRepository repository;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,6 +20,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.main_activity);
 
         binding = DataBindingUtil.setContentView(this, R.layout.main_activity);
+        repository = new PersonRepository();
 
         setupPersonList();
     }
@@ -33,25 +34,10 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<PersonListItemViewModel> getPeopleVMs() {
         ArrayList<PersonListItemViewModel> result = new ArrayList<>();
 
-        for (Person person : getPeople()) {
+        for (Person person : repository.getPeople()) {
             result.add(new PersonListItemViewModel(person));
         }
 
         return result;
-    }
-
-    private ArrayList<Person> getPeople() {
-        ArrayList<Person> people = new ArrayList<>();
-
-        for (int i = 0; i < 10; i++) {
-            people.add(i, generatePerson(i));
-        }
-
-        return people;
-    }
-
-    @NonNull
-    private Person generatePerson(int i) {
-        return new Person("Ms " + String.valueOf(i), String.valueOf(i));
     }
 }
