@@ -8,9 +8,17 @@ import android.view.ViewGroup;
 
 import com.malcolmstone.androidswapi.databinding.PersonListItemBinding;
 
-public class PersonListAdapter extends RecyclerView.Adapter {
+import java.util.ArrayList;
+
+public class PersonListAdapter extends RecyclerView.Adapter<PersonListAdapter.ViewHolder> {
+    private ArrayList<PersonListItemViewModel> people;
+
+    public PersonListAdapter(ArrayList<PersonListItemViewModel> people) {
+        this.people = people;
+    }
+
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
 
         PersonListItemBinding binding = DataBindingUtil.inflate(inflater, R.layout.person_list_item, parent, false);
@@ -19,18 +27,19 @@ public class PersonListAdapter extends RecyclerView.Adapter {
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(ViewHolder holder, int position) {
+        PersonListItemViewModel viewModel = people.get(position);
 
+        holder.binding.setVm(viewModel);
     }
 
     @Override
     public int getItemCount() {
-        return 0;
+        return people.size();
     }
 
-    private class ViewHolder extends RecyclerView.ViewHolder {
-
-        private final PersonListItemBinding binding;
+    class ViewHolder extends RecyclerView.ViewHolder {
+        public final PersonListItemBinding binding;
 
         public ViewHolder(View itemView) {
             super(itemView);
