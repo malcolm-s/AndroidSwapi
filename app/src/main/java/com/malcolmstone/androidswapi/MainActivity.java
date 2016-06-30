@@ -18,6 +18,10 @@ public class MainActivity extends AppCompatActivity {
 
         binding = DataBindingUtil.setContentView(this, R.layout.main_activity);
 
+        setupPersonList();
+    }
+
+    private void setupPersonList() {
         binding.personList.setLayoutManager(new LinearLayoutManager(this));
         binding.personList.setHasFixedSize(true);
         binding.personList.setAdapter(new PersonListAdapter());
