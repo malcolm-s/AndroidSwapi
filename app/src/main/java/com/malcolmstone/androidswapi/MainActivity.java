@@ -18,10 +18,9 @@ import rx.schedulers.Schedulers;
 public class MainActivity extends AppCompatActivity {
 
     private MainActivityBinding binding;
-    private PersonRepository repository;
-    private SwapiApi swapiService;
     private Subscription peopleSubscription;
     private PersonListAdapter listAdapter;
+    private PersonListViewModel vm = new PersonListViewModel();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,24 +29,17 @@ public class MainActivity extends AppCompatActivity {
 
         binding = DataBindingUtil.setContentView(this, R.layout.main_activity);
 
-        swapiService = SwapiService.createSwapiService();
+        setupPersonList();
 
-        peopleSubscription = swapiService.getPeople()
+        fetchData();
+    }
+
+    private void fetchData() {
+        peopleSubscription = SwapiService.createSwapiService()
+                .getPeople()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.newThread())
-                .map(new Func1<People, ArrayList<PersonListItemViewModel>>() {
-                    @Override
-                    public ArrayList<PersonListItemViewModel> call(People people) {
-                        ArrayList<PersonListItemViewModel> vms = new ArrayList<>();
-
-                        for (Person person : people.getResults()) {
-                            vms.add(new PersonListItemViewModel(person));
-                        }
-
-                        return vms;
-                    }
-                })
-                .subscribe(new Subscriber<ArrayList<PersonListItemViewModel>>() {
+                .subscribe(new Subscriber<People>() {
                     @Override
                     public void onCompleted() {
 
@@ -59,15 +51,12 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onNext(ArrayList<PersonListItemViewModel> vms) {
-                        listAdapter.setVms(vms);
+                    public void onNext(People people) {
+                        vm.setPeople(people);
+                        listAdapter.setItemVms(vm.getItemViewModels());
                         listAdapter.notifyDataSetChanged();
                     }
                 });
-
-        repository = new PersonRepository();
-
-        setupPersonList();
     }
 
     @Override
@@ -82,15 +71,5 @@ public class MainActivity extends AppCompatActivity {
         binding.personList.setHasFixedSize(true);
         listAdapter = new PersonListAdapter();
         binding.personList.setAdapter(listAdapter);
-    }
-
-    private ArrayList<PersonListItemViewModel> getPeopleVMs() {
-        ArrayList<PersonListItemViewModel> result = new ArrayList<>();
-
-        for (Person person : repository.getPeople()) {
-            result.add(new PersonListItemViewModel(person));
-        }
-
-        return result;
     }
 }

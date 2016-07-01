@@ -13,9 +13,7 @@ import java.util.ArrayList;
 public class PersonListAdapter extends RecyclerView.Adapter<PersonListAdapter.ViewHolder> {
     private ArrayList<PersonListItemViewModel> personListItemViewModels = new ArrayList<>();
 
-    public PersonListAdapter() { }
-
-    public void setVms(ArrayList<PersonListItemViewModel> vms) {
+    public void setItemVms(ArrayList<PersonListItemViewModel> vms) {
         this.personListItemViewModels = vms;
     }
 
