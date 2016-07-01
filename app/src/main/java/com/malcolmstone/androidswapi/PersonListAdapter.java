@@ -11,10 +11,12 @@ import com.malcolmstone.androidswapi.databinding.PersonListItemBinding;
 import java.util.ArrayList;
 
 public class PersonListAdapter extends RecyclerView.Adapter<PersonListAdapter.ViewHolder> {
-    private ArrayList<PersonListItemViewModel> people;
+    private ArrayList<PersonListItemViewModel> personListItemViewModels = new ArrayList<>();
 
-    public PersonListAdapter(ArrayList<PersonListItemViewModel> people) {
-        this.people = people;
+    public PersonListAdapter() { }
+
+    public void setVms(ArrayList<PersonListItemViewModel> vms) {
+        this.personListItemViewModels = vms;
     }
 
     @Override
@@ -28,14 +30,14 @@ public class PersonListAdapter extends RecyclerView.Adapter<PersonListAdapter.Vi
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        PersonListItemViewModel viewModel = people.get(position);
+        PersonListItemViewModel viewModel = personListItemViewModels.get(position);
 
         holder.binding.setVm(viewModel);
     }
 
     @Override
     public int getItemCount() {
-        return people.size();
+        return personListItemViewModels.size();
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {

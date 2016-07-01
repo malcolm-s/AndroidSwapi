@@ -4,17 +4,15 @@ import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
-import android.util.Log;
 
 import com.malcolmstone.androidswapi.databinding.MainActivityBinding;
 
 import java.util.ArrayList;
 
-import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
+import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity {
@@ -23,6 +21,7 @@ public class MainActivity extends AppCompatActivity {
     private PersonRepository repository;
     private SwapiApi swapiService;
     private Subscription peopleSubscription;
+    private PersonListAdapter listAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +35,19 @@ public class MainActivity extends AppCompatActivity {
         peopleSubscription = swapiService.getPeople()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.newThread())
-                .subscribe(new Subscriber<People>() {
+                .map(new Func1<People, ArrayList<PersonListItemViewModel>>() {
+                    @Override
+                    public ArrayList<PersonListItemViewModel> call(People people) {
+                        ArrayList<PersonListItemViewModel> vms = new ArrayList<>();
+
+                        for (Person person : people.getResults()) {
+                            vms.add(new PersonListItemViewModel(person));
+                        }
+
+                        return vms;
+                    }
+                })
+                .subscribe(new Subscriber<ArrayList<PersonListItemViewModel>>() {
                     @Override
                     public void onCompleted() {
 
@@ -48,8 +59,9 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onNext(People people) {
-                        Log.d("App", "onNext: " + people.getCount());
+                    public void onNext(ArrayList<PersonListItemViewModel> vms) {
+                        listAdapter.setVms(vms);
+                        listAdapter.notifyDataSetChanged();
                     }
                 });
 
@@ -58,10 +70,18 @@ public class MainActivity extends AppCompatActivity {
         setupPersonList();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        peopleSubscription.unsubscribe();
+    }
+
     private void setupPersonList() {
         binding.personList.setLayoutManager(new LinearLayoutManager(this));
         binding.personList.setHasFixedSize(true);
-        binding.personList.setAdapter(new PersonListAdapter(getPeopleVMs()));
+        listAdapter = new PersonListAdapter();
+        binding.personList.setAdapter(listAdapter);
     }
 
     private ArrayList<PersonListItemViewModel> getPeopleVMs() {
