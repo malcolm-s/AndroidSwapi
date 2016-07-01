@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">AndroidSwapi</string>
     <string name="nameLabel">Name</string>
-    <string name="ageLabel">Age</string>
+    <string name="massLabel">Mass</string>
     <string name="genderLabel">Gender</string>
+    <string name="heightLabel">Height</string>
+    <string name="hairColourLabel">Hair Colour</string>
 </resources>
