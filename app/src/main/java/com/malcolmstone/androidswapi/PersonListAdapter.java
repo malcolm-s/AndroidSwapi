@@ -45,6 +45,7 @@ public class PersonListAdapter extends RecyclerView.Adapter<PersonListAdapter.Vi
             super(itemView);
 
             binding = DataBindingUtil.bind(itemView);
+            binding.executePendingBindings();
         }
     }
 }

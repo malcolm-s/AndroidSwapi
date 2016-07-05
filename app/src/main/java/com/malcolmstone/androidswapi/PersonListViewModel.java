@@ -1,5 +1,8 @@
 package com.malcolmstone.androidswapi;
 
+import android.databinding.ObservableBoolean;
+import android.databinding.ObservableField;
+
 import java.util.ArrayList;
 
 /**
@@ -7,6 +10,9 @@ import java.util.ArrayList;
  */
 
 public class PersonListViewModel {
+    public final ObservableBoolean isLoading = new ObservableBoolean(true);
+    public final ObservableBoolean hasError = new ObservableBoolean(true);
+    public final ObservableField<String> error = new ObservableField<>();
     private People people;
     private ArrayList<PersonListItemViewModel> itemViewModels;
 
@@ -18,7 +24,7 @@ public class PersonListViewModel {
         for (Person person : people.getResults()) {
             itemViewModels.add(new PersonListItemViewModel(person));
         }
-     
+
         setItemViewModels(itemViewModels);
     }
 
@@ -28,5 +34,10 @@ public class PersonListViewModel {
 
     public void setItemViewModels(ArrayList<PersonListItemViewModel> vms) {
         this.itemViewModels = vms;
+    }
+
+    public void setError(String message) {
+        error.set(message);
+        hasError.set(true);
     }
 }
