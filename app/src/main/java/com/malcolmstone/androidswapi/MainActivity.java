@@ -4,6 +4,7 @@ import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
+import android.util.Log;
 import android.view.View;
 
 import com.malcolmstone.androidswapi.databinding.MainActivityBinding;
@@ -28,9 +29,16 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.main_activity);
 
         binding = DataBindingUtil.setContentView(this, R.layout.main_activity);
-        binding.setVm(vm);;
+        binding.setVm(vm);
 
         setupPersonList();
+
+        binding.buttonNext.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d("asd", "onClick: ");
+            }
+        });
 
         fetchData();
     }
@@ -68,11 +76,9 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void onNext(People people) {
-                        onError(null);
-                        return;
-//                        vm.setPeople(people);
-//                        listAdapter.setItemVms(vm.getItemViewModels());
-//                        listAdapter.notifyDataSetChanged();
+                        vm.setPeople(people);
+                        listAdapter.setItemVms(vm.getItemViewModels());
+                        listAdapter.notifyDataSetChanged();
                     }
                 });
     }
