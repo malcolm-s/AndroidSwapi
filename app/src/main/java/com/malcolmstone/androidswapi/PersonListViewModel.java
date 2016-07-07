@@ -16,18 +16,6 @@ public class PersonListViewModel {
     private People people;
     private ArrayList<PersonListItemViewModel> itemViewModels;
 
-    public void setPeople(People people) {
-        this.people = people;
-
-        ArrayList<PersonListItemViewModel> itemViewModels = new ArrayList<>();
-
-        for (Person person : people.getResults()) {
-            itemViewModels.add(new PersonListItemViewModel(person));
-        }
-
-        setItemViewModels(itemViewModels);
-    }
-
     public ArrayList<PersonListItemViewModel> getItemViewModels() {
         return itemViewModels;
     }
@@ -39,5 +27,21 @@ public class PersonListViewModel {
     public void setError(String message) {
         error.set(message);
         hasError.set(true);
+    }
+
+    public People getPeople() {
+        return people;
+    }
+
+    public void setPeople(People people) {
+        this.people = people;
+
+        ArrayList<PersonListItemViewModel> itemViewModels = new ArrayList<>();
+
+        for (Person person : people.getResults()) {
+            itemViewModels.add(new PersonListItemViewModel(person));
+        }
+
+        setItemViewModels(itemViewModels);
     }
 }

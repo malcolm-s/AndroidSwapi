@@ -40,7 +40,13 @@ public class People {
     }
 
     public String getPreviousPageNumber() {
-        UrlQuerySanitizer sanitizer = new UrlQuerySanitizer(getPrevious());
+        String previous = getPrevious();
+
+        if (previous == null) {
+            return null;
+        }
+
+        UrlQuerySanitizer sanitizer = new UrlQuerySanitizer(previous);
 
         return sanitizer.getValue("page");
     }

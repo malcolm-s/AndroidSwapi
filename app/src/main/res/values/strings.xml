@@ -5,4 +5,6 @@
     <string name="genderLabel">Gender</string>
     <string name="heightLabel">Height</string>
     <string name="hairColourLabel">Hair Colour</string>
+    <string name="previousLabel">Previous</string>
+    <string name="nextLabel">Next</string>
 </resources>

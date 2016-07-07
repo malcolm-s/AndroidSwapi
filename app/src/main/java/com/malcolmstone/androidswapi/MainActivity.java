@@ -4,7 +4,6 @@ import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
-import android.util.Log;
 import android.view.View;
 
 import com.malcolmstone.androidswapi.databinding.MainActivityBinding;
@@ -22,6 +21,28 @@ public class MainActivity extends AppCompatActivity {
     private Subscription peopleSubscription;
     private PersonListAdapter listAdapter;
     private PersonListViewModel vm = new PersonListViewModel();
+    private SwapiApi swapiService;
+
+    private Subscriber<People> getVmSubscriber() {
+        return new Subscriber<People>() {
+            @Override
+            public void onCompleted() {
+                vm.isLoading.set(false);
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                vm.setError("Woops something went wrong!");
+            }
+
+            @Override
+            public void onNext(People people) {
+                vm.setPeople(people);
+                listAdapter.setItemVms(vm.getItemViewModels());
+                listAdapter.notifyDataSetChanged();
+            }
+        };
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,10 +54,47 @@ public class MainActivity extends AppCompatActivity {
 
         setupPersonList();
 
+        swapiService = SwapiService.createSwapiService();
+
         binding.buttonNext.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d("asd", "onClick: ");
+                if (peopleSubscription != null) {
+                    peopleSubscription.unsubscribe();
+                }
+
+                String nextPageNumber = vm.getPeople().getNextPageNumber();
+
+                if (nextPageNumber == null) {
+                    return;
+                }
+
+                peopleSubscription = swapiService
+                        .getPeople(nextPageNumber)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeOn(Schedulers.newThread())
+                        .subscribe(getVmSubscriber());
+            }
+        });
+
+        binding.buttonPrevious.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (peopleSubscription != null) {
+                    peopleSubscription.unsubscribe();
+                }
+
+                String previousPageNumber = vm.getPeople().getPreviousPageNumber();
+
+                if (previousPageNumber == null) {
+                    return;
+                }
+
+                peopleSubscription = swapiService
+                        .getPeople(previousPageNumber)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeOn(Schedulers.newThread())
+                        .subscribe(getVmSubscriber());
             }
         });
 
@@ -58,28 +116,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void fetchData() {
-        peopleSubscription = SwapiService.createSwapiService()
+        peopleSubscription = swapiService
                 .getPeople()
-                .delay(2, TimeUnit.SECONDS)
+                .delay(500, TimeUnit.MILLISECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.newThread())
-                .subscribe(new Subscriber<People>() {
-                    @Override
-                    public void onCompleted() {
-                        vm.isLoading.set(false);
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        vm.setError("Woops something went wrong!");
-                    }
-
-                    @Override
-                    public void onNext(People people) {
-                        vm.setPeople(people);
-                        listAdapter.setItemVms(vm.getItemViewModels());
-                        listAdapter.notifyDataSetChanged();
-                    }
-                });
+                .subscribe(getVmSubscriber());
     }
 }

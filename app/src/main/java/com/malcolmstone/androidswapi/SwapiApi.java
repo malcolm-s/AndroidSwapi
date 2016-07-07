@@ -1,6 +1,7 @@
 package com.malcolmstone.androidswapi;
 
 import retrofit2.http.GET;
+import retrofit2.http.Query;
 import rx.Observable;
 
 /**
@@ -10,4 +11,7 @@ import rx.Observable;
 public interface SwapiApi {
     @GET("people")
     Observable<People> getPeople();
+
+    @GET("people")
+    Observable<People> getPeople(@Query("page") String page);
 }
