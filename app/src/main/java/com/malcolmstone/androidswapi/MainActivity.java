@@ -20,8 +20,9 @@ public class MainActivity extends AppCompatActivity {
     private MainActivityBinding binding;
     private Subscription peopleSubscription;
     private PersonListAdapter listAdapter;
-    private PersonListViewModel vm = new PersonListViewModel();
+    private PersonListViewModel vm;
     private SwapiApi swapiService;
+    private Handlers handlers;
 
     private Subscriber<People> getVmSubscriber() {
         return new Subscriber<People>() {
@@ -47,58 +48,25 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main_activity);
 
-        binding = DataBindingUtil.setContentView(this, R.layout.main_activity);
-        binding.setVm(vm);
+        setupBindings();
 
         setupPersonList();
 
         swapiService = SwapiService.createSwapiService();
 
-        binding.buttonNext.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (peopleSubscription != null) {
-                    peopleSubscription.unsubscribe();
-                }
+        handlers.handlePagingClick(null);
 
-                String nextPageNumber = vm.getPeople().getNextPageNumber();
+        fetchData(null);
+    }
 
-                if (nextPageNumber == null) {
-                    return;
-                }
+    private void setupBindings() {
+        binding = DataBindingUtil.setContentView(this, R.layout.main_activity);
+        vm = new PersonListViewModel();
+        binding.setVm(vm);
 
-                peopleSubscription = swapiService
-                        .getPeople(nextPageNumber)
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeOn(Schedulers.newThread())
-                        .subscribe(getVmSubscriber());
-            }
-        });
-
-        binding.buttonPrevious.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (peopleSubscription != null) {
-                    peopleSubscription.unsubscribe();
-                }
-
-                String previousPageNumber = vm.getPeople().getPreviousPageNumber();
-
-                if (previousPageNumber == null) {
-                    return;
-                }
-
-                peopleSubscription = swapiService
-                        .getPeople(previousPageNumber)
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeOn(Schedulers.newThread())
-                        .subscribe(getVmSubscriber());
-            }
-        });
-
-        fetchData();
+        handlers = new Handlers();
+        binding.setHandlers(handlers);
     }
 
     @Override
@@ -115,12 +83,38 @@ public class MainActivity extends AppCompatActivity {
         binding.personList.setAdapter(listAdapter);
     }
 
-    private void fetchData() {
+    private void fetchData(String pageNumber) {
+        if (peopleSubscription != null) {
+            peopleSubscription.unsubscribe();
+        }
+
+        vm.isLoading.set(true);
+
         peopleSubscription = swapiService
-                .getPeople()
+                .getPeople(pageNumber)
                 .delay(500, TimeUnit.MILLISECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.newThread())
                 .subscribe(getVmSubscriber());
+    }
+
+    public class Handlers {
+        public void onClickPrevious(View view) {
+            String previousPageNumber = vm.getPeople().getPreviousPageNumber();
+            handlePagingClick(previousPageNumber);
+        }
+
+        public void onClickNext(View view) {
+            String nextPageNumber = vm.getPeople().getNextPageNumber();
+            handlePagingClick(nextPageNumber);
+        }
+
+        void handlePagingClick(String pageNumber) {
+            if (pageNumber == null) {
+                return;
+            }
+
+            fetchData(pageNumber);
+        }
     }
 }
